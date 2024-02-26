@@ -18,13 +18,12 @@ Citizen.CreateThread(
 function createBlip(blipData, coords, dataID)
     local blip = AddBlipForCoord(coords.x, coords.y, coords.z)
     SetBlipSprite(blip, blipData.sprite)
-    SetBlipDisplay(blip, 4)
     SetBlipScale(blip, blipData.scale)
     SetBlipColour(blip, blipData.colour)
     BeginTextCommandSetBlipName("STRING")
     AddTextComponentString(blipData.name)
     EndTextCommandSetBlipName(blip)
-
+    SetBlipAsShortRange(blip, true)
     blips[dataID] = blip
 
     for dataID, blip in pairs(blips) do
