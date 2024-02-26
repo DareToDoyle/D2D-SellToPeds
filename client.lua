@@ -5,6 +5,12 @@ local blips = {}
 
 Citizen.CreateThread(
     function()
+	Citizen.Wait(10000)
+	
+	while not ESX.IsPlayerLoaded() do
+	Citizen.Wait(100)
+	end
+	
         TriggerServerEvent("D2D-PedUtils:requestPeds")
     end
 )
