@@ -22,7 +22,7 @@ function createBlip(blipData, coords, dataID)
     blips[dataID] = blip
 
     for dataID, blip in pairs(blips) do
-        Debug("Data ID:", dataID, "Blip ID:", blip)
+        Debug("Data ID: " .. dataID .. ". Blip ID: " .. blip .. ".")
     end
 
     return blip
@@ -84,11 +84,12 @@ function openMenu(menuType)
             local itemData = exports.ox_inventory:Items()[itemName]
             local itemLabel = itemData.label
             
-			if D2D.Framework == 'ESX' then
-                local formattedItemTotalWorth = ESX.Math.GroupDigits(itemTotalWorth)
-			else
-			    local formattedItemTotalWorth = itemTotalWorth
-			end
+            local formattedItemTotalWorth
+            if D2D.Framework == 'ESX' then
+                formattedItemTotalWorth = ESX.Math.GroupDigits(itemTotalWorth)
+            else
+                formattedItemTotalWorth = itemTotalWorth
+            end
 
             local option = {
                 title = itemCount .. " x " .. itemLabel .. " - £" .. formattedItemTotalWorth,
@@ -130,7 +131,11 @@ function openMenu(menuType)
                     description = "Sounds like a pretty good deal.",
                     icon = "check",
                     onSelect = function()
-                        TriggerServerEvent("D2D-PedUtils:sellItems", itemsToSend, menuType)
+                        if totalWorth <= 0 then -- If they dont have any items to sell it wont give them any money!
+                            Debug("You don't have any items to sell")
+                        else
+                            TriggerServerEvent("D2D-PedUtils:sellItems", itemsToSend, menuType)
+                        end
                     end
                 }
             }
