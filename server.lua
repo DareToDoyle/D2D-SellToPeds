@@ -46,7 +46,7 @@ function SpawnPedAtCoordinate(pedType, pedModel, coord, scenario, blip)
 
     local nID = NetworkGetNetworkIdFromEntity(ped)
 
-    SetEntityDistanceCullingRadius(ped, 25000.0) -- Depreciated native (use at own risk), if you know of a replacement please let me know!
+    SetEntityDistanceCullingRadius(ped, 25000.0) -- Depreciated native (use at own risk), because it requires a client to be nearby this is the only way I could figure out how to do it! Let me know if you have a replacement (or pull on github)
 
     peds[ped] = {type = pedType, counter = pedCounter, nID = nID, scenario = scenario, blip = blip}
 
