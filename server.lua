@@ -1,5 +1,39 @@
 local ESX = exports["es_extended"]:getSharedObject()
 
+local pedCoords = {} 
+
+function getRandomCoord(coords)
+    local randomIndex = math.random(1, #coords)
+    return coords[randomIndex]
+end
+
+function getCoordsForPedType(pedData)
+    if pedData.spawn == "random" then
+        return { getRandomCoord(pedData.coords) }
+    else
+        return pedData.coords
+    end
+end
+
+function updatePedCoords()
+    pedCoords = {} 
+
+    for pedType, pedData in pairs(D2D.Peds) do
+        local coords = getCoordsForPedType(pedData)
+        pedCoords[pedType] = coords
+    end
+end
+
+RegisterServerEvent("D2D-PedUtils:RequestCoords")
+AddEventHandler("D2D-PedUtils:RequestCoords",function()
+	TriggerClientEvent("D2D-PedUtils:sendPedCoords", source, pedCoords) 
+end)
+
+
+Citizen.CreateThread(function()
+    updatePedCoords()
+end)
+
 RegisterServerEvent("D2D-PedUtils:sellItems")
 AddEventHandler(
     "D2D-PedUtils:sellItems",

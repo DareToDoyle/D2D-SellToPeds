@@ -26,8 +26,10 @@ D2D.Peds = {
             model = "a_m_m_hasjew_01", --https://docs.fivem.net/docs/game-references/ped-models/
             scenario = "WORLD_HUMAN_HANG_OUT_STREET_CLUBHOUSE" -- https://wiki.rage.mp/index.php?title=Scenarios
         },
+		spawn = "random", -- random or all
         coords = {
             { x = 2684.7449, y = 3515.3157, z = 52.3038, h = 84.9249 },
+            { x = -141.0248, y = -1629.4154, z = 32.9342, h = 213.0431 }
         },
         items = {
             ["lamp"] = 150,
@@ -58,6 +60,7 @@ D2D.Peds = {
             model = "g_m_y_ballaeast_01",
             scenario = "WORLD_HUMAN_STAND_MOBILE"
         },
+		spawn = "random", -- random or all
         coords = {
             { x = 83.6032, y = -1973.6638, z = 19.9299, h = 323.4721 },
         },

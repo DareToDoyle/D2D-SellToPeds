@@ -1,10 +1,12 @@
 ESX = exports["es_extended"]:getSharedObject()
 
 local clientPeds = {}
-
 local isPedDeleted = true
 
-function createBlip(blipData, coords, dataID)
+function createBlip(blipData, coords)
+    if not blipData.enabled then
+        return 
+    end
     local blip = AddBlipForCoord(coords.x, coords.y, coords.z)
     SetBlipSprite(blip, blipData.sprite)
     SetBlipScale(blip, blipData.scale)
@@ -16,6 +18,33 @@ function createBlip(blipData, coords, dataID)
     return blip
 end
 
+Citizen.CreateThread(function()
+    Citizen.Wait(1000)
+    TriggerServerEvent("D2D-PedUtils:RequestCoords")
+end)
+
+
+RegisterNetEvent("D2D-PedUtils:sendPedCoords")
+AddEventHandler("D2D-PedUtils:sendPedCoords", function(coords)
+    clientPeds = coords
+	
+	for pedType, coordsList in pairs(clientPeds) do
+        for _, coordData in ipairs(coordsList) do
+            local pedData = D2D.Peds[pedType] or {} 
+            local blipData = pedData.blip
+            local blip = createBlip(blipData, vec3(coordData.x, coordData.y, coordData.z))
+            if isPedDeleted then
+                handlePedData({
+                    type = pedType,
+                    ped = pedData.ped,
+                    scenario = pedData.ped and pedData.ped.scenario or "WORLD_HUMAN_HANG_OUT_STREET_CLUBHOUSE", -- Default scenario
+                    coords = coordData
+                })
+            end
+        end
+    end
+end)
+
 function handlePedData(data)
     local modelhash = GetHashKey(data.ped.model)
     RequestModel(modelhash)
@@ -24,47 +53,15 @@ function handlePedData(data)
         Citizen.Wait(50)
     end
 
-    if isPedDeleted then
-        local ped = CreatePed(26, modelhash, data.coords.x, data.coords.y, data.coords.z, data.coords.h, false, true)
-        SetModelAsNoLongerNeeded(modelhash)
-        TaskStartScenarioInPlace(ped, data.scenario, 0, true)
-        SetEntityInvincible(ped, true)
-        FreezeEntityPosition(ped, true)
-        SetBlockingOfNonTemporaryEvents(ped, true)
-        local options = createOptions(data)
-        exports.ox_target:addLocalEntity(ped, options)
-        isPedDeleted = false
-    end
+    local ped = CreatePed(26, modelhash, data.coords.x, data.coords.y, data.coords.z, data.coords.h, false, true)
     SetModelAsNoLongerNeeded(modelhash)
+    TaskStartScenarioInPlace(ped, data.scenario, 0, true)
+    SetEntityInvincible(ped, true)
+    FreezeEntityPosition(ped, true)
+    SetBlockingOfNonTemporaryEvents(ped, true)
+    local options = createOptions(data)
+    exports.ox_target:addLocalEntity(ped, options)
 end
-
-
-for pedType, pedData in pairs(D2D.Peds) do
-
-    for _, coordData in ipairs(pedData.coords) do
-
-        local point = lib.points.new({
-            coords = vec3(coordData.x, coordData.y, coordData.z),
-            distance = 30.0,
-
-            onEnter = function(self)
-                if isPedDeleted then
-                    handlePedData({
-                        type = pedType,
-                        ped = pedData.ped,
-                        scenario = pedData.ped.scenario,
-                        coords = coordData
-                    })
-                end
-            end
-        })
-
-        local blipData = pedData.blip
-
-        local blip = createBlip(blipData, vec3(coordData.x, coordData.y, coordData.z), 0)
-    end
-end
-
 
 function createOptions(data)
     local options = {
@@ -80,7 +77,6 @@ function createOptions(data)
     }
     return options
 end
-
 
 function openMenu(menuType)
     local options = {}
